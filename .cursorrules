@@ -1,0 +1,10 @@
+# Cursor & Windsurf AI Rules for Job Search Tracker
+
+You are working on Manthan Ank's Job Search & Application Tracker built with Next.js 15, Prisma ORM, and PostgreSQL.
+
+## Guidelines
+- Write strict TypeScript code with explicit types from `@/lib/types`.
+- All database operations should mirror the Prisma schema defined in `prisma/schema.prisma`.
+- The Kanban board supports 6 distinct stages: `WISHLIST`, `APPLIED`, `SCREENING`, `TECHNICAL_INTERVIEW`, `OFFER`, and `REJECTED`.
+- Ensure all interactive modals (`AddApplicationModal`, `ApplicationDetailModal`, `AiCareerModal`) have accessible keyboard controls and mobile touch targets.
+

@@ -1,0 +1,95 @@
+// Prisma schema for Job Search & Application Tracker
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ApplicationStage {
+  WISHLIST
+  APPLIED
+  SCREENING
+  TECHNICAL_INTERVIEW
+  OFFER
+  REJECTED
+}
+
+enum JobType {
+  FULL_TIME
+  CONTRACT
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+model Company {
+  id           String           @id @default(uuid())
+  name         String
+  website      String?
+  logoUrl      String?
+  location     String?
+  applications JobApplication[]
+  contacts     Contact[]
+  createdAt    DateTime         @default(now())
+}
+
+model JobApplication {
+  id              String            @id @default(uuid())
+  companyId       String
+  company         Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  roleTitle       String
+  stage           ApplicationStage  @default(WISHLIST)
+  jobType         JobType           @default(FULL_TIME)
+  location        String?
+  salaryMin       Float?
+  salaryMax       Float?
+  currency        String            @default("USD")
+  appliedDate     DateTime?
+  listingUrl      String?
+  notes           String?
+  rating          Int               @default(3) // 1-5 priority
+  reminders       InterviewReminder[]
+  checklist       ChecklistTask[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([stage])
+  @@index([companyId])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  role      String?  // Recruiter, Engineering Manager, Referral
+  email     String?
+  phone     String?
+  linkedIn  String?
+  createdAt DateTime @default(now())
+}
+
+model InterviewReminder {
+  id            String         @id @default(uuid())
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  title         String
+  scheduledAt   DateTime
+  locationOrUrl String?
+  notes         String?
+  completed     Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+}
+
+model ChecklistTask {
+  id            String         @id @default(uuid())
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  text          String
+  isCompleted   Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+}
+
