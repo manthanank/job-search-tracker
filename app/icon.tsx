@@ -25,7 +25,7 @@ export default function Icon() {
           boxShadow: "0 2px 8px rgba(245, 158, 11, 0.4)",
         }}
       >
-        🎯
+        HF
       </div>
     ),
     {

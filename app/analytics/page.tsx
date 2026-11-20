@@ -12,21 +12,35 @@ import {
   Sparkles, Filter, Briefcase, Zap 
 } from "lucide-react";
 
+import { JobApplication } from "@/lib/types";
+import { INITIAL_APPLICATIONS } from "@/lib/mock-data";
+
 export default function AnalyticsPage() {
   const [isMounted, setIsMounted] = useState(false);
+  const [apps, setApps] = useState<JobApplication[]>(INITIAL_APPLICATIONS);
 
   useEffect(() => {
     setIsMounted(true);
+    try {
+      const stored = localStorage.getItem("huntflow_applications");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0) setApps(parsed);
+      }
+    } catch (e) {}
   }, []);
 
-  // Conversion Funnel Data
+  // Calculate funnel metrics
+  const totalApps = Math.max(apps.length, 1);
+  const screenCount = apps.filter((a) => ["SCREENING", "TECHNICAL_INTERVIEW", "OFFER"].includes(a.stage)).length;
+  const interviewCount = apps.filter((a) => ["TECHNICAL_INTERVIEW", "OFFER"].includes(a.stage)).length;
+  const offerCount = apps.filter((a) => a.stage === "OFFER").length;
+
   const funnelData = [
-    { stage: "Applications", count: 48, rate: "100%", fill: "#6366f1" },
-    { stage: "Recruiter Screen", count: 26, rate: "54.2%", fill: "#818cf8" },
-    { stage: "Technical Round", count: 14, rate: "29.2%", fill: "#38bdf8" },
-    { stage: "System Design", count: 9, rate: "18.8%", fill: "#06b6d4" },
-    { stage: "Final Executive", count: 6, rate: "12.5%", fill: "#10b981" },
-    { stage: "Official Offers", count: 3, rate: "6.25%", fill: "#34d399" },
+    { stage: "Applications", count: apps.length, rate: "100%", fill: "#6366f1" },
+    { stage: "Recruiter Screen", count: screenCount, rate: `${((screenCount / totalApps) * 100).toFixed(1)}%`, fill: "#818cf8" },
+    { stage: "Interview Loops", count: interviewCount, rate: `${((interviewCount / totalApps) * 100).toFixed(1)}%`, fill: "#38bdf8" },
+    { stage: "Official Offers", count: offerCount, rate: `${((offerCount / totalApps) * 100).toFixed(1)}%`, fill: "#10b981" },
   ];
 
   // Compensation Distribution Data

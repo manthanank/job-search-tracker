@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { 
@@ -75,11 +75,43 @@ const INITIAL_SESSIONS: InterviewSession[] = [
 export default function InterviewsPage() {
   const [sessions, setSessions] = useState<InterviewSession[]>(INITIAL_SESSIONS);
   const [selectedSessionId, setSelectedSessionId] = useState<string>(INITIAL_SESSIONS[0].id);
+  const [newNote, setNewNote] = useState("");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("huntflow_interviews");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0) {
+          setSessions(parsed);
+          setSelectedSessionId(parsed[0].id);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  const saveSessions = (updated: InterviewSession[]) => {
+    setSessions(updated);
+    try {
+      localStorage.setItem("huntflow_interviews", JSON.stringify(updated));
+    } catch (e) {}
+  };
 
   const activeSession = sessions.find((s) => s.id === selectedSessionId) || sessions[0];
 
   const handleTogglePrep = (id: string) => {
-    setSessions(sessions.map((s) => s.id === id ? { ...s, prepCompleted: !s.prepCompleted } : s));
+    const updated = sessions.map((s) => (s.id === id ? { ...s, prepCompleted: !s.prepCompleted } : s));
+    saveSessions(updated);
+  };
+
+  const handleAddNote = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNote.trim()) return;
+    const updated = sessions.map((s) =>
+      s.id === activeSession.id ? { ...s, notes: [...s.notes, newNote.trim()] } : s
+    );
+    saveSessions(updated);
+    setNewNote("");
   };
 
   return (
@@ -226,6 +258,22 @@ export default function InterviewsPage() {
                     </div>
                   ))}
                 </div>
+
+                <form onSubmit={handleAddNote} className="flex gap-2 pt-2">
+                  <input
+                    type="text"
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Add custom interview talking point or prep checklist..."
+                    className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition"
+                  >
+                    Add Note
+                  </button>
+                </form>
               </div>
             </motion.div>
           </div>

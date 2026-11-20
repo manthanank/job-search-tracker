@@ -419,7 +419,7 @@ export default function JobTrackerLandingPage() {
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Transparent, Open Access Plans</h2>
             <p className="text-slate-400 text-sm sm:text-base">
-              Start with free local-first tracking or upgrade for automated recruiter scrapers and live AI mock interviews.
+              Start with free local-first tracking or upgrade for automated recruiter scrapers and live AI interview coaching.
             </p>
 
             <div className="inline-flex items-center gap-3 p-1 rounded-full bg-slate-900 border border-slate-800 mt-4">
@@ -475,8 +475,8 @@ export default function JobTrackerLandingPage() {
                 period: "per month, billed annually",
                 features: [
                   "Everything in Pro Careerist",
-                  "Live mock system design interviews",
-                  "Recruiter contact email scraping",
+                  "AI System Design Interview Coach & Feedback",
+                  "Recruiter contact email intelligence",
                   "Dedicated executive negotiation advisor",
                   "Multi-currency equity modeling"
                 ],
