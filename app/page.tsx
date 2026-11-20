@@ -129,6 +129,13 @@ export default function JobTrackerLandingPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
+              href="/jobs"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/20 transition hover:scale-105 active:scale-95"
+            >
+              <Sparkles className="w-5 h-5 text-emerald-200" />
+              <span>Explore Live Jobs (300+)</span>
+            </Link>
+            <Link
               href="/analytics"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 font-semibold text-sm transition"
             >

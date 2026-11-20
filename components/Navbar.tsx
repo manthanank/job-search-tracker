@@ -16,6 +16,7 @@ import {
   Settings,
   Layers,
   ExternalLink,
+  Globe,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -30,6 +31,7 @@ export function Navbar({ onOpenAddModal, onOpenAiModal }: NavbarProps) {
   const navLinks = [
     { label: "Overview", href: "/", icon: Layers },
     { label: "Pipeline Board", href: "/board", icon: Briefcase },
+    { label: "Live Job Radar", href: "/jobs", icon: Globe },
     { label: "Funnel Analytics", href: "/analytics", icon: BarChart2 },
     { label: "Network & CRM", href: "/contacts", icon: Users },
     { label: "Interviews", href: "/interviews", icon: CalendarDays },

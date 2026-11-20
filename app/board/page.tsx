@@ -21,17 +21,34 @@ export default function JobBoardPage() {
   const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
 
-  // Load from localStorage
+  // Load from server API + localStorage sync
   useEffect(() => {
-    try {
-      const storedApps = localStorage.getItem("huntflow_applications");
-      if (storedApps) setApplications(JSON.parse(storedApps));
+    fetch("/api/applications")
+      .then((res) => res.json())
+      .then((data) => {
+        try {
+          const storedApps = localStorage.getItem("huntflow_applications");
+          if (storedApps) {
+            setApplications(JSON.parse(storedApps));
+          } else if (data.applications && Array.isArray(data.applications)) {
+            setApplications(data.applications);
+            localStorage.setItem("huntflow_applications", JSON.stringify(data.applications));
+          }
+        } catch (e) {
+          if (data.applications) setApplications(data.applications);
+        }
+      })
+      .catch(() => {
+        try {
+          const storedApps = localStorage.getItem("huntflow_applications");
+          if (storedApps) setApplications(JSON.parse(storedApps));
+        } catch (e) {}
+      });
 
+    try {
       const storedRems = localStorage.getItem("huntflow_reminders");
       if (storedRems) setReminders(JSON.parse(storedRems));
-    } catch (e) {
-      // Fallback silently to mock state
-    }
+    } catch (e) {}
   }, []);
 
   // Save changes
