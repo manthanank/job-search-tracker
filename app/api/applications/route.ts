@@ -244,3 +244,4 @@ export async function DELETE(request: Request) {
     remainingCount: serverApplications.length,
   });
 }
+
