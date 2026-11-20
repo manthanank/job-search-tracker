@@ -265,3 +265,4 @@ model JobApplication {
     </div>
   );
 }
+
