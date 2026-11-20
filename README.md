@@ -8,6 +8,8 @@ Part of the **10-Project Full-Stack Suite** by [Manthan Ank](https://github.com/
 
 ## 🚀 Key Features & Capabilities
 
+- **Live Tech Job Radar (`/jobs` & `/api/jobs/feed`)**: Real-time integration with verified tech job feeds delivering 300+ active remote engineering positions from Stripe, Amazon, Spotify, etc., with 1-click "Add to Pipeline" import.
+- **Dynamic Applications REST API (`/api/applications`)**: Full server-side CRUD supporting live search, stage updates, priority adjustments, and dynamic relative-date tracking.
 - **Multi-Stage Kanban Board**: Visual workflow covering 6 recruitment stages (`Wishlist`, `Applied`, `Recruiter Screen`, `Tech Interview`, `Offer Received`, `Archived`).
 - **Interactive Stage Progression**: Advance or regress applications across pipeline columns with 1-click stage controls.
 - **Detailed Opportunity Inspection**:
