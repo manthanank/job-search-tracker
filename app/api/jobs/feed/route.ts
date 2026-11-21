@@ -86,8 +86,8 @@ const FALLBACK_LIVE_JOBS: LiveJob[] = [
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q")?.toLowerCase() || "";
-  const tag = searchParams.get("tag")?.toLowerCase() || "";
+  const query = (searchParams.get("q") || searchParams.get("query") || "").toLowerCase();
+  const tag = (searchParams.get("tag") || "").toLowerCase();
 
   try {
     const res = await fetch("https://www.arbeitnow.com/api/job-board-api", {

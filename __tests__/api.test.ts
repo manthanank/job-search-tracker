@@ -1,8 +1,48 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { GET as getJobsFeed } from "../app/api/jobs/feed/route";
 import { GET as getApplications, POST as postApplication } from "../app/api/applications/route";
 
 describe("Job Search Tracker API Routes", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            {
+              slug: "senior-full-stack-engineer-stripe",
+              company_name: "Stripe",
+              title: "Senior Full-Stack Engineer - Billing",
+              description: "Build robust billing pipelines and customer APIs",
+              remote: true,
+              url: "https://stripe.com/jobs",
+              tags: ["React", "TypeScript", "Node.js"],
+              job_types: ["Full-time"],
+              location: "Remote (Global)",
+              created_at: 1710000000,
+            },
+            {
+              slug: "infrastructure-engineer-datadog",
+              company_name: "Datadog",
+              title: "Infrastructure Engineer",
+              description: "Manage telemetry and distributed systems",
+              remote: true,
+              url: "https://datadog.com/jobs",
+              tags: ["Go", "Kubernetes"],
+              job_types: ["Full-time"],
+              location: "Remote",
+              created_at: 1710000000,
+            },
+          ],
+        }),
+      })
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
   it("GET /api/jobs/feed returns successful jobs feed with items", async () => {
     const req = new Request("http://localhost:3000/api/jobs/feed");
     const res = await getJobsFeed(req);
