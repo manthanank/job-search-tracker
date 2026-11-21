@@ -145,7 +145,7 @@ export async function GET(request: Request) {
   if (isDatabaseConfigured()) {
     try {
       const dbApps = await prisma.jobApplication.findMany({
-        include: { company: true, contacts: true, checklist: true },
+        include: { company: { include: { contacts: true } }, checklist: true },
         orderBy: { createdAt: "desc" },
       });
       if (dbApps && dbApps.length > 0) {
@@ -162,8 +162,8 @@ export async function GET(request: Request) {
           listingUrl: a.listingUrl || "",
           notes: a.notes || "",
           priority: (a.rating || 3) as JobApplication["priority"],
-          contacts: a.contacts.map((c) => ({ id: c.id, name: c.name, role: c.role || "", email: c.email || "" })),
-          checklist: a.checklist.map((cl) => ({ id: cl.id, text: cl.text, isCompleted: cl.isCompleted })),
+          contacts: a.company.contacts.map((c: { id: string; name: string; role: string | null; email: string | null }) => ({ id: c.id, name: c.name, role: c.role || "", email: c.email || "" })),
+          checklist: a.checklist.map((cl: { id: string; text: string; isCompleted: boolean }) => ({ id: cl.id, text: cl.text, isCompleted: cl.isCompleted })),
         }));
       }
     } catch (e) {
