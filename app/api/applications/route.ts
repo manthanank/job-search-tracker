@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { JobApplication } from "@/lib/types";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 // Dynamic seed generator relative to today's date
 function generateDynamicSeedApplications(): JobApplication[] {
@@ -139,7 +140,38 @@ export async function GET(request: Request) {
   const stage = searchParams.get("stage");
   const query = searchParams.get("q")?.toLowerCase();
 
-  let filtered = [...serverApplications];
+  let apps = [...serverApplications];
+
+  if (isDatabaseConfigured()) {
+    try {
+      const dbApps = await prisma.jobApplication.findMany({
+        include: { company: true, contacts: true, checklist: true },
+        orderBy: { createdAt: "desc" },
+      });
+      if (dbApps && dbApps.length > 0) {
+        apps = dbApps.map((a) => ({
+          id: a.id,
+          company: a.company.name,
+          roleTitle: a.roleTitle,
+          stage: a.stage as JobApplication["stage"],
+          jobType: (a.jobType === "FULL_TIME" ? "Remote" : a.jobType) as JobApplication["jobType"],
+          location: a.location || "Remote",
+          salaryMin: a.salaryMin || undefined,
+          salaryMax: a.salaryMax || undefined,
+          appliedDate: a.appliedDate ? a.appliedDate.toISOString().split("T")[0] : a.createdAt.toISOString().split("T")[0],
+          listingUrl: a.listingUrl || "",
+          notes: a.notes || "",
+          priority: (a.rating || 3) as JobApplication["priority"],
+          contacts: a.contacts.map((c) => ({ id: c.id, name: c.name, role: c.role || "", email: c.email || "" })),
+          checklist: a.checklist.map((cl) => ({ id: cl.id, text: cl.text, isCompleted: cl.isCompleted })),
+        }));
+      }
+    } catch (e) {
+      console.warn("[Applications API] Database query error, using in-memory:", (e as Error).message);
+    }
+  }
+
+  let filtered = [...apps];
 
   if (stage && stage !== "ALL") {
     filtered = filtered.filter((app) => app.stage === stage);
@@ -194,6 +226,36 @@ export async function POST(request: Request) {
 
     serverApplications = [newApp, ...serverApplications];
 
+    if (isDatabaseConfigured()) {
+      try {
+        let company = await prisma.company.findFirst({
+          where: { name: { equals: body.company, mode: "insensitive" } },
+        });
+        if (!company) {
+          company = await prisma.company.create({
+            data: { name: body.company, location: body.location || "Remote" },
+          });
+        }
+        await prisma.jobApplication.create({
+          data: {
+            id: newApp.id,
+            companyId: company.id,
+            roleTitle: newApp.roleTitle,
+            stage: (newApp.stage as any) || "WISHLIST",
+            location: newApp.location,
+            salaryMin: newApp.salaryMin ?? null,
+            salaryMax: newApp.salaryMax ?? null,
+            listingUrl: newApp.listingUrl,
+            notes: newApp.notes,
+            rating: newApp.priority,
+            appliedDate: new Date(newApp.appliedDate),
+          },
+        });
+      } catch (dbErr) {
+        console.warn("[Applications API] Database insert failed, stored in memory:", (dbErr as Error).message);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Application added successfully",
@@ -218,6 +280,23 @@ export async function PUT(request: Request) {
       app.id === updated.id ? { ...app, ...updated } : app
     );
 
+    if (isDatabaseConfigured()) {
+      try {
+        await prisma.jobApplication.update({
+          where: { id: updated.id },
+          data: {
+            roleTitle: updated.roleTitle,
+            stage: updated.stage as any,
+            notes: updated.notes,
+            rating: updated.priority,
+            location: updated.location,
+          },
+        });
+      } catch (dbErr) {
+        console.warn("[Applications API] Database update error:", (dbErr as Error).message);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Application updated successfully",
@@ -237,6 +316,16 @@ export async function DELETE(request: Request) {
   }
 
   serverApplications = serverApplications.filter((app) => app.id !== id);
+
+  if (isDatabaseConfigured()) {
+    try {
+      await prisma.jobApplication.delete({
+        where: { id },
+      });
+    } catch (dbErr) {
+      console.warn("[Applications API] Database delete error:", (dbErr as Error).message);
+    }
+  }
 
   return NextResponse.json({
     success: true,
